@@ -20,6 +20,7 @@ internal object PreviewLayouts {
             piece(18, 92, 64, 64, pill(), tint = 0),
             piece(218, 92, 64, 64, pill(), tint = 0)
         )
+        GlassPage.LOCKSCREEN_CLOCK -> listOf(piece(60, 32, 180, 108, round(28), tint = 0))
         GlassPage.FINGERPRINT -> listOf(piece(112, 48, 76, 76, pill(), tint = 0, icon = R.drawable.ic_preview_fingerprint))
         GlassPage.BOUNCER -> bouncer()
         GlassPage.VOLUME -> volume()
