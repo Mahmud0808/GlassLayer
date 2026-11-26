@@ -1,11 +1,6 @@
 package com.drdisagree.glasslayer.ui.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
@@ -15,6 +10,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import kotlin.math.PI
 import kotlin.math.cos
@@ -27,15 +23,9 @@ fun GlassScene(
     dim: Float = 0f,
     orbScale: Float = 1f
 ) {
-    val transition = rememberInfiniteTransition(label = "glassScene")
-    val phase by transition.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(tween(LOOP_MS, easing = LinearEasing), RepeatMode.Restart),
-        label = "glassScenePhase"
-    )
+    val phase by rememberLoopPhase(LOOP_MS)
     val tone by animateColorAsState(accent, tween(COLOR_MS), label = "sceneAccent")
-    Canvas(modifier) {
+    Canvas(modifier.graphicsLayer()) {
         val angle = phase * 2f * PI.toFloat()
         val unit = size.minDimension
         drawRect(Brush.linearGradient(BASE, Offset(size.width * 0.3f, 0f), Offset(size.width * 0.7f, size.height)))

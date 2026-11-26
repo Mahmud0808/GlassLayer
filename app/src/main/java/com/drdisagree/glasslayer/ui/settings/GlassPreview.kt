@@ -54,7 +54,7 @@ internal fun GlassPreview(
 ) {
     val scene = rememberLayerBackdrop()
     val surface = if (LocalPalette.current.isDark) DARK_SURFACE else LIGHT_SURFACE
-    GlassContainer(CardShape, modifier.fillMaxWidth()) {
+    GlassContainer(CardShape, modifier.fillMaxWidth(), frosted = true) {
         BoxWithConstraints(
             Modifier
                 .fillMaxWidth()

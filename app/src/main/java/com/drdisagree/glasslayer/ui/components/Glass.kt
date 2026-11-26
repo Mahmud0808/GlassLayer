@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.drdisagree.glasslayer.ui.theme.Surface
 import com.kyant.backdrop.Backdrop
@@ -20,8 +19,7 @@ fun Modifier.glass(
     backdrop: Backdrop,
     shape: Shape,
     tint: (() -> Color)? = null,
-    blurRadius: Dp = 4.dp,
-    refraction: Dp = 16.dp,
+    frosted: Boolean = false,
     exported: LayerBackdrop? = null
 ): Modifier {
     val surface = Surface
@@ -31,8 +29,10 @@ fun Modifier.glass(
         shape = { shape },
         effects = {
             vibrancy()
-            blur(blurRadius.toPx())
-            lens(refraction.toPx(), refraction.toPx() * 2f, depthEffect = true)
+            if (frosted) {
+                blur(FROST_BLUR.toPx())
+                lens(FROST_REFRACTION.toPx(), FROST_REFRACTION.toPx() * 2f, depthEffect = true)
+            }
         },
         highlight = { Highlight.Default.copy(alpha = RIM_ALPHA) },
         exportedBackdrop = exported,
@@ -43,3 +43,5 @@ fun Modifier.glass(
 }
 
 private const val RIM_ALPHA = 0.5f
+private val FROST_BLUR = 4.dp
+private val FROST_REFRACTION = 16.dp

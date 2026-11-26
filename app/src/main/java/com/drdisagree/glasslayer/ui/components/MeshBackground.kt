@@ -5,7 +5,9 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.graphicsLayer
 import com.drdisagree.glasslayer.ui.theme.LocalPalette
 
 @Composable
@@ -14,7 +16,7 @@ fun MeshBackground(modifier: Modifier = Modifier) {
     val colors = palette.mesh
     val strength = if (palette.isDark) DARK_STRENGTH else LIGHT_STRENGTH
     val shader = remember { RuntimeShader(GLOW_SHADER) }
-    Canvas(modifier) {
+    Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
         shader.setFloatUniform("size", size.width, size.height)
         shader.setFloatUniform("strength", strength)
         colors.forEachIndexed { index, color ->

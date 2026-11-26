@@ -21,7 +21,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.launch
@@ -31,7 +30,7 @@ fun GlassContainer(
     shape: Shape,
     modifier: Modifier = Modifier,
     tint: (() -> Color)? = null,
-    blurRadius: Dp = 4.dp,
+    frosted: Boolean = false,
     enabled: Boolean = true,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -42,7 +41,7 @@ fun GlassContainer(
     Box(
         modifier
             .graphicsLayer { translationX = shake.value * SHAKE_DISTANCE.toPx() }
-            .glass(LocalBackdrop.current, shape, tint = tint, blurRadius = blurRadius, exported = surface)
+            .glass(LocalBackdrop.current, shape, tint = tint, frosted = frosted, exported = surface)
             .clip(shape)
     ) {
         Column(

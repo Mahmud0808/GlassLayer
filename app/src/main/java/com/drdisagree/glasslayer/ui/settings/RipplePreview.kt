@@ -76,7 +76,7 @@ internal fun RipplePreview(durationMs: Float, strength: Float, speed: Float, mod
         }
     }
 
-    GlassContainer(CardShape, modifier.fillMaxWidth()) {
+    GlassContainer(CardShape, modifier.fillMaxWidth(), frosted = true) {
         Box(
             Modifier
                 .fillMaxWidth()

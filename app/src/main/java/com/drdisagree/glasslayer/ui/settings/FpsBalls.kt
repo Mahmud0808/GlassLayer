@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -24,18 +25,20 @@ import kotlin.math.pow
 @Composable
 internal fun FpsBalls(fps: Int, displayRate: Int, modifier: Modifier = Modifier, ball: Dp? = null) {
     var time by remember { mutableLongStateOf(0L) }
-    LaunchedEffect(Unit) {
-        val start = withFrameNanos { it }
-        while (true) withFrameNanos { time = it - start }
+    val step = NANOS / fps.coerceIn(1, displayRate.coerceAtLeast(1))
+    LaunchedEffect(step) {
+        val start = withFrameNanos { it } - time
+        while (true) withFrameNanos {
+            val stepped = (it - start) / step * step
+            if (stepped != time) time = stepped
+        }
     }
     val lane = OnInk.copy(alpha = LANE_ALPHA)
     val accent = Accent
     val second = lerp(Accent, Color.White, SECOND_LIGHT)
-    Canvas(modifier) {
+    Canvas(modifier.graphicsLayer()) {
         val radius = ball?.toPx() ?: (size.minDimension * SCENE_BALL)
-        val rate = displayRate.coerceAtLeast(1)
-        val step = NANOS / fps.coerceIn(1, rate)
-        val stepped = time / step * step
+        val stepped = time
         val ground = size.height - GROUND_GAP.toPx()
         drawLine(lane, Offset(0f, ground), Offset(size.width, ground), strokeWidth = LANE_WIDTH.toPx(), cap = StrokeCap.Round)
         drawThrow(stepped + LOOP_NANOS / 2, ground, radius * SECOND_SIZE, SECOND_DROP, second)
