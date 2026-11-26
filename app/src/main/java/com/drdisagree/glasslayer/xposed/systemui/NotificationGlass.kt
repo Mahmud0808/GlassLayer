@@ -159,13 +159,7 @@ object NotificationGlass {
 
         if (!active) {
             recordRowColor(row, view, if (stockHidden) 0 else drawableAlpha, 1f)
-            if (view.extra(NOTIFICATION_GLASS_FIELD) == true) {
-                (view.extra(NOTIFICATION_COLOR_FIELD) as? ColorStateList)
-                    ?.let { colorLayer?.color = it }
-                view.setExtra(NOTIFICATION_COLOR_FIELD, null)
-                background.alpha = drawableAlpha
-                view.setExtra(NOTIFICATION_GLASS_FIELD, false)
-            }
+            restoreStock(view, background, colorLayer, drawableAlpha)
             return
         }
 
@@ -187,10 +181,10 @@ object NotificationGlass {
         val right = left + actualWidth
 
         val saveCount = canvas.save()
-        try {
-            Guard.run("NotificationGlass.notification_glass", Unit) {
+        val drawn = try {
+            Guard.run("NotificationGlass.notification_glass", false) {
                 canvas.clipRect(left, clipTop, right, actualHeight - clipBottom)
-                ComposeLiquidGlass.drawView(
+                val glassDrawn = ComposeLiquidGlass.drawView(
                     view,
                     canvas,
                     left.toFloat(),
@@ -204,7 +198,7 @@ object NotificationGlass {
                     openSmallEdges = true
                 )
 
-                if (colorLayer != null) {
+                if (glassDrawn && colorLayer != null) {
                     val tint = (view.field("mTintColor") as? Int)?.takeIf { it != 0 }
                         ?: view.field("mNormalColor") as? Int
                     if (tint != null) {
@@ -221,9 +215,16 @@ object NotificationGlass {
                         canvas.drawPath(tintPath, tintPaint)
                     }
                 }
+                glassDrawn
             }
         } finally {
             canvas.restoreToCount(saveCount)
+        }
+
+        if (!drawn) {
+            recordRowColor(row, view, drawableAlpha, 1f)
+            restoreStock(view, background, colorLayer, drawableAlpha)
+            return
         }
 
         if (colorLayer != null) {
@@ -236,6 +237,14 @@ object NotificationGlass {
             background.alpha = (drawableAlpha * tintLevel).roundToInt().coerceIn(0, 255)
         }
         view.setExtra(NOTIFICATION_GLASS_FIELD, true)
+    }
+
+    private fun restoreStock(view: View, background: Drawable, colorLayer: GradientDrawable?, drawableAlpha: Int) {
+        if (view.extra(NOTIFICATION_GLASS_FIELD) != true) return
+        (view.extra(NOTIFICATION_COLOR_FIELD) as? ColorStateList)?.let { colorLayer?.color = it }
+        view.setExtra(NOTIFICATION_COLOR_FIELD, null)
+        background.alpha = drawableAlpha
+        view.setExtra(NOTIFICATION_GLASS_FIELD, false)
     }
 
     fun colorBehind(view: View): Int {
