@@ -22,7 +22,7 @@ Every surface has its own switch, tint and glass style (blur, refraction, reflec
 
 Glass Layer is made for my personal use and shared as is, with no warranty.
 
-- **Tested on:** PixelOS, Android 17 (October update). It is fully tested and working there. Other ROMs and versions may work, partly work or not work at all.
+- **Tested on:** PixelOS, Android 17 (October and November updates). It is fully tested and working there. Other ROMs and versions may work, partly work or not work at all.
 - **Device:** live glass works best on a powerful device (recent mid-range or flagship chip). On older phones, lower the glass frame rate in the app under Performance for smoother results.
 - **Issues:** I won't fix issues that don't affect my daily usage. Other reports will likely stay open.
 - **Need a fix?** Fork the repo and fix it yourself. Pull requests are welcome, but there is no promise they get merged.
