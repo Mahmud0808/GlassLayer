@@ -130,7 +130,7 @@
     <string name="mod_lockscreen_clock">Clock</string>
     <string name="mod_lockscreen_clock_summary">Glass lockscreen clock</string>
     <string name="page_lockscreen_clock_title">Lockscreen clock</string>
-    <string name="level_lockscreen_clock_tint">Original clock color</string>
+    <string name="level_lockscreen_clock_tint">Clock tint</string>
     <string name="mod_fingerprint">Fingerprint</string>
     <string name="mod_fingerprint_summary">Glass behind the fingerprint icon</string>
     <string name="page_fingerprint_title">Fingerprint icon</string>

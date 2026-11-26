@@ -110,7 +110,8 @@ enum class GlassPage(
         GlassToggle.LOCKSCREEN_CLOCK,
         GlassSurface.LOCKSCREEN_CLOCK,
         true,
-        listOf(GlassLevel.LOCKSCREEN_CLOCK_TINT)
+        listOf(GlassLevel.LOCKSCREEN_CLOCK_TINT),
+        listOf(StyleParam.BLUR_RADIUS, StyleParam.REFRACTION, StyleParam.REFLECTION, StyleParam.RIM)
     ),
     FINGERPRINT(
         R.string.mod_fingerprint,

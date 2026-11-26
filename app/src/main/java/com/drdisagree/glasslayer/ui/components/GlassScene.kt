@@ -26,21 +26,25 @@ fun GlassScene(
     val phase by rememberLoopPhase(LOOP_MS)
     val tone by animateColorAsState(accent, tween(COLOR_MS), label = "sceneAccent")
     Canvas(modifier.graphicsLayer()) {
-        val angle = phase * 2f * PI.toFloat()
-        val unit = size.minDimension
-        drawRect(Brush.linearGradient(BASE, Offset(size.width * 0.3f, 0f), Offset(size.width * 0.7f, size.height)))
-        drawRect(Brush.radialGradient(listOf(SKY, Color.Transparent), Offset(size.width * 0.15f, 0f), size.maxDimension * 0.7f))
-        val margin = unit * MARGIN
-        val iceR = (unit * ICE_R * orbScale).coerceAtMost(unit / 2f - margin)
-        val orbR = (unit * ORB_R * orbScale).coerceAtMost(unit / 2f - margin)
-        val ice = inside(iceR + margin, ICE_X + DRIFT_X * cos(angle), ICE_Y + DRIFT_Y * sin(angle))
-        val orb = inside(orbR + margin, ORB_X - DRIFT_X * cos(angle + PHASE_SHIFT), ORB_Y - DRIFT_Y * sin(angle + PHASE_SHIFT))
-        halo(orb, orbR, tone)
-        halo(ice, iceR, ICE_HALO)
-        sphere(orb, orbR, lerp(tone, Color.White, 0.45f), tone, lerp(tone, DEEP, 0.55f))
-        sphere(ice, iceR, Color.White, ICE, ICE_EDGE)
-        if (dim > 0f) drawRect(Color.Black.copy(alpha = dim.coerceIn(0f, 1f)))
+        drawGlassScene(phase, tone, orbScale, dim)
     }
+}
+
+fun DrawScope.drawGlassScene(phase: Float, tone: Color = SCENE_ACCENT, orbScale: Float = 1f, dim: Float = 0f) {
+    val angle = phase * 2f * PI.toFloat()
+    val unit = size.minDimension
+    drawRect(Brush.linearGradient(BASE, Offset(size.width * 0.3f, 0f), Offset(size.width * 0.7f, size.height)))
+    drawRect(Brush.radialGradient(listOf(SKY, Color.Transparent), Offset(size.width * 0.15f, 0f), size.maxDimension * 0.7f))
+    val margin = unit * MARGIN
+    val iceR = (unit * ICE_R * orbScale).coerceAtMost(unit / 2f - margin)
+    val orbR = (unit * ORB_R * orbScale).coerceAtMost(unit / 2f - margin)
+    val ice = inside(iceR + margin, ICE_X + DRIFT_X * cos(angle), ICE_Y + DRIFT_Y * sin(angle))
+    val orb = inside(orbR + margin, ORB_X - DRIFT_X * cos(angle + PHASE_SHIFT), ORB_Y - DRIFT_Y * sin(angle + PHASE_SHIFT))
+    halo(orb, orbR, tone)
+    halo(ice, iceR, ICE_HALO)
+    sphere(orb, orbR, lerp(tone, Color.White, 0.45f), tone, lerp(tone, DEEP, 0.55f))
+    sphere(ice, iceR, Color.White, ICE, ICE_EDGE)
+    if (dim > 0f) drawRect(Color.Black.copy(alpha = dim.coerceIn(0f, 1f)))
 }
 
 private fun DrawScope.inside(inset: Float, fx: Float, fy: Float): Offset = Offset(
