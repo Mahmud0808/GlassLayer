@@ -279,14 +279,22 @@ object ButtonGlass {
                 { GlassConfig.buttonTint },
                 source = { (it as? ImageView)?.drawable?.let { icon -> SolidShapes.of(icon) } },
                 imageContent = true,
-                rimOnTop = true
+                rimOnTop = true,
+                behind = { NotificationGlass.colorBehind(it) }
             )
             ViewGlassUnderlay.attachPress(view) { GlassConfig.buttonsActive }
             return
         }
         if (outlined(view)) {
             owned.add(view)
-            ViewGlassUnderlay.attach(view, PrefKeys.BUTTONS, { GlassConfig.buttonsActive }, { 0f }, rimOnTop = true)
+            ViewGlassUnderlay.attach(
+                view,
+                PrefKeys.BUTTONS,
+                { GlassConfig.buttonsActive },
+                { 0f },
+                rimOnTop = true,
+                behind = { NotificationGlass.colorBehind(it) }
+            )
             ViewGlassUnderlay.attachPress(view) { GlassConfig.buttonsActive }
             return
         }
@@ -301,7 +309,8 @@ object ButtonGlass {
             { GlassConfig.buttonsActive },
             { GlassConfig.buttonTint },
             source = { singleFill(it) },
-            rimOnTop = true
+            rimOnTop = true,
+            behind = { NotificationGlass.colorBehind(it) }
         )
         ViewGlassUnderlay.attachPress(view) { GlassConfig.buttonsActive }
     }
