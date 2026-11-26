@@ -18,7 +18,7 @@ enum class ModGroup(@param:StringRes val title: Int, @param:DrawableRes val icon
     LOCKSCREEN(
         R.string.group_lockscreen,
         R.drawable.ic_section_lockscreen,
-        listOf(GlassPage.LOCKSCREEN_NOTIFICATIONS, GlassPage.LOCKSCREEN_SHORTCUTS, GlassPage.FINGERPRINT, GlassPage.BOUNCER, GlassPage.UNLOCK_RIPPLE)
+        listOf(GlassPage.LOCKSCREEN_CLOCK, GlassPage.LOCKSCREEN_NOTIFICATIONS, GlassPage.LOCKSCREEN_SHORTCUTS, GlassPage.FINGERPRINT, GlassPage.BOUNCER, GlassPage.UNLOCK_RIPPLE)
     ),
     VOLUME(R.string.group_volume, R.drawable.ic_section_volume, listOf(GlassPage.VOLUME, GlassPage.VOLUME_PANEL)),
     DIALOGS(

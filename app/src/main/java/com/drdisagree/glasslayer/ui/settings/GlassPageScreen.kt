@@ -72,6 +72,17 @@ fun GlassPageScreen(page: GlassPage, viewModel: SettingsViewModel, onBack: () ->
                     modifier = dimmed
                 )
             }
+        } else if (page == GlassPage.LOCKSCREEN_CLOCK && state.loaded) {
+            {
+                ClockPreview(
+                    blurDp = styleValue(StyleParam.BLUR_RADIUS),
+                    refraction = styleValue(StyleParam.REFRACTION) / PERCENT,
+                    reflection = styleValue(StyleParam.REFLECTION) / PERCENT,
+                    rim = styleValue(StyleParam.RIM) / PERCENT,
+                    tint = levelValue(GlassLevel.LOCKSCREEN_CLOCK_TINT) / PERCENT,
+                    modifier = dimmed
+                )
+            }
         } else if (page != GlassPage.PERFORMANCE && state.loaded) {
             {
                 GlassPreview(

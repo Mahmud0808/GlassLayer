@@ -15,6 +15,7 @@ enum class GlassLevel(val min: Float = 0f, val max: Float = 100f, val unit: Leve
     HEADS_UP_TINT,
     LOCKSCREEN_NOTIFICATION_TINT,
     LOCKSCREEN_SHORTCUT_TINT,
+    LOCKSCREEN_CLOCK_TINT,
     FINGERPRINT_TINT,
     BOUNCER_TINT,
     BOUNCER_ACCENT_TINT,
