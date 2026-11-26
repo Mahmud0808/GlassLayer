@@ -10,6 +10,7 @@ import android.view.ViewTreeObserver
 import com.drdisagree.glasslayer.xposed.glass.ClockMask
 import com.drdisagree.glasslayer.xposed.glass.ClockMasks
 import java.lang.ref.WeakReference
+import kotlin.math.abs
 
 internal class ClockFace(view: View) : View.OnAttachStateChangeListener, ViewTreeObserver.OnPreDrawListener {
 
@@ -29,6 +30,8 @@ internal class ClockFace(view: View) : View.OnAttachStateChangeListener, ViewTre
     val screenToLocal = Matrix()
     val wallpaperToScreen = Matrix()
     val wallpaperToView = Matrix()
+    private val appliedValues = FloatArray(MATRIX_SIZE)
+    private val nextValues = FloatArray(MATRIX_SIZE)
 
     private var mask: ClockMask? = null
     private var maskWidth = 0
@@ -63,6 +66,16 @@ internal class ClockFace(view: View) : View.OnAttachStateChangeListener, ViewTre
         return entry
     }
 
+    fun sameMapping(next: Matrix): Boolean {
+        appliedMatrix.getValues(appliedValues)
+        next.getValues(nextValues)
+        for (index in 0 until MATRIX_SIZE) {
+            val tolerance = if (index == Matrix.MTRANS_X || index == Matrix.MTRANS_Y) TRANSLATION_SLOP else SCALE_SLOP
+            if (abs(appliedValues[index] - nextValues[index]) > tolerance) return false
+        }
+        return true
+    }
+
     fun clear(view: View) {
         if (image == null && shader == null) return
         view.setRenderEffect(null)
@@ -73,3 +86,7 @@ internal class ClockFace(view: View) : View.OnAttachStateChangeListener, ViewTre
         mask = null
     }
 }
+
+private const val MATRIX_SIZE = 9
+private const val TRANSLATION_SLOP = 1f
+private const val SCALE_SLOP = 0.001f

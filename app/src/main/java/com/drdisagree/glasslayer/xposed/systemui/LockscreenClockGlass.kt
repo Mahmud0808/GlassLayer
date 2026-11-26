@@ -56,6 +56,7 @@ object LockscreenClockGlass {
     private var wallpaper: Bitmap? = null
     private var task: Future<*>? = null
     private var generation = 0
+    private var trackedGeneration = 0
 
     private val maxZoom by lazy {
         val system = Resources.getSystem()
@@ -75,6 +76,7 @@ object LockscreenClockGlass {
             customClocks.add(clock)
             (clock.field("currentClockView") as? View)?.let(::watchCustom)
         }
+        hooks += LockWallpaperTracker.install(::onWallpaperChanged)
         hooks += HookEnv.findClass(CLOCK_STYLE).hookAllAfter("updateClockView") { chain, _ ->
             val clock = chain.thisObject ?: return@hookAllAfter
             if (clock !in customClocks) return@hookAllAfter
@@ -91,6 +93,15 @@ object LockscreenClockGlass {
                 settings = next
                 if (previous != null && previous.blurPx != next.blurPx) resetWallpaper() else invalidateFaces()
             }
+        }
+    }
+
+    private fun onWallpaperChanged() {
+        if (LockWallpaperTracker.generation != trackedGeneration) {
+            trackedGeneration = LockWallpaperTracker.generation
+            resetWallpaper()
+        } else {
+            invalidateFaces()
         }
     }
 
@@ -172,7 +183,7 @@ object LockscreenClockGlass {
         }
         val root = view.rootView
         if (root.width <= 0 || root.height <= 0) return
-        requestWallpaper(ClockWallpaperRequest(root.width, root.height, current.blurPx))
+        requestWallpaper(ClockWallpaperRequest(root.width, root.height, current.blurPx, LockWallpaperTracker.generation))
         val image = wallpaper ?: return
 
         face.localToScreen.reset()
@@ -185,7 +196,7 @@ object LockscreenClockGlass {
         val short = minOf(view.width, view.height).toFloat()
         val edge = ClockGlassShader.edge(short, density)
         val maskChanged = face.needsMask(view.width, view.height, edge, content)
-        if (!maskChanged && face.image === image && face.applied == current && face.appliedMatrix == face.wallpaperToView &&
+        if (!maskChanged && face.image === image && face.applied == current && face.sameMapping(face.wallpaperToView) &&
             face.appliedDensity == density && face.appliedWidth == view.width && face.appliedHeight == view.height
         ) {
             return
@@ -224,6 +235,22 @@ object LockscreenClockGlass {
     }
 
     private fun mapWallpaper(face: ClockFace, image: Bitmap, screenWidth: Float, screenHeight: Float) {
+        val placed = LockWallpaperTracker.placement
+        if (placed != null && LockWallpaperTracker.source != null) {
+            val centerX = screenWidth / 2f
+            val centerY = screenHeight / 2f
+            val zoom = LockWallpaperTracker.scale
+            face.wallpaperSrc.set(0f, 0f, image.width.toFloat(), image.height.toFloat())
+            face.wallpaperDst.set(
+                centerX + (placed.left - centerX) * zoom,
+                centerY + (placed.top - centerY) * zoom,
+                centerX + (placed.right - centerX) * zoom,
+                centerY + (placed.bottom - centerY) * zoom
+            )
+            face.wallpaperToScreen.setRectToRect(face.wallpaperSrc, face.wallpaperDst, Matrix.ScaleToFit.FILL)
+            face.wallpaperToView.setConcat(face.screenToLocal, face.wallpaperToScreen)
+            return
+        }
         val scale = maxOf(screenWidth / image.width, screenHeight / image.height)
         val drawnWidth = image.width * scale
         val drawnHeight = image.height * scale

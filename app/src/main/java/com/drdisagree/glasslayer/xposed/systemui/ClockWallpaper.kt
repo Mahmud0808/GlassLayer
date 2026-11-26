@@ -13,6 +13,9 @@ internal object ClockWallpaper {
     fun load(manager: WallpaperManager, request: ClockWallpaperRequest): Bitmap? {
         val which = if (manager.getWallpaperId(WallpaperManager.FLAG_LOCK) > 0) WallpaperManager.FLAG_LOCK else WallpaperManager.FLAG_SYSTEM
         if (manager.getWallpaperInfo(which) != null) return null
+        val tracked = LockWallpaperTracker.source
+        val placement = LockWallpaperTracker.placement
+        if (tracked != null && placement != null) return ClockBlur.apply(tracked, request.blurPx, placement.width())
         val target = if (request.blurPx <= 0f) SHARP_SAMPLE_SIZE else SAMPLE_SIZE
         val image = manager.getWallpaperFile(which)?.use { file ->
             val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
