@@ -4,6 +4,6 @@ import android.view.SurfaceControl
 import android.view.View
 import java.lang.ref.WeakReference
 
-internal class ExcludedWindow(root: View, val surface: SurfaceControl, val ambient: Boolean) {
+internal class ExcludedWindow(root: View, val surface: SurfaceControl, val ambient: Boolean, val layer: Int) {
     val root = WeakReference(root)
 }

@@ -715,8 +715,10 @@ object ComposeLiquidGlass : BackdropClient {
         frame.copy(blurred = null)
     }
 
-    private fun frameFor(surface: GlassSurface): BackdropFrame? =
-        surface.root?.get()?.let { frames[it] } ?: frame
+    private fun frameFor(surface: GlassSurface): BackdropFrame? {
+        val root = surface.root?.get() ?: return frame
+        return frames[root]
+    }
 
     private fun staleMs(): Long = maxOf(STALE_MS, frameInterval * STALE_FRAMES)
 
@@ -758,7 +760,7 @@ object ComposeLiquidGlass : BackdropClient {
             if (type == null || type < WindowManager.LayoutParams.FIRST_SYSTEM_WINDOW) return@forEach
             val surface = root.call("getSurfaceControl") as? SurfaceControl
             if (surface != null && surface.isValid) {
-                layers.add(ExcludedWindow(view, surface, type == WindowManager.LayoutParams.TYPE_STATUS_BAR))
+                layers.add(ExcludedWindow(view, surface, type == WindowManager.LayoutParams.TYPE_STATUS_BAR, WindowLayers.of(type)))
             }
             if (view.visibility == View.VISIBLE) {
                 view.display?.let {
@@ -768,6 +770,7 @@ object ComposeLiquidGlass : BackdropClient {
             }
         }
 
+        layers.sortBy { it.layer }
         synchronized(excluded) {
             excluded.clear()
             excluded.addAll(layers)

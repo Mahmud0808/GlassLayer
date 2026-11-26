@@ -51,6 +51,7 @@ object NotificationGlass {
 
     private val footerViews = Collections.newSetFromMap(WeakHashMap<Any, Boolean>())
     private val backgroundViews = Collections.newSetFromMap(WeakHashMap<View, Boolean>())
+    private val rowColors = WeakHashMap<View, Int>()
     private val mainHandler = Handler(Looper.getMainLooper())
     private val tintPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val tintPath = Path()
@@ -150,22 +151,19 @@ object NotificationGlass {
         val colorLayer = background.notificationColorLayer() as? GradientDrawable
 
         if (enabled && expandedGroup) {
+            row?.let { rowColors.remove(it) }
             if (background.alpha != 0) background.alpha = 0
             view.setExtra(NOTIFICATION_GLASS_FIELD, true)
             return
         }
 
         if (!active) {
-            if (view.extra(NOTIFICATION_GLASS_FIELD) == true) {
-                (view.extra(NOTIFICATION_COLOR_FIELD) as? ColorStateList)
-                    ?.let { colorLayer?.color = it }
-                view.setExtra(NOTIFICATION_COLOR_FIELD, null)
-                background.alpha = drawableAlpha
-                view.setExtra(NOTIFICATION_GLASS_FIELD, false)
-            }
+            recordRowColor(row, view, if (stockHidden) 0 else drawableAlpha, 1f)
+            restoreStock(view, background, colorLayer, drawableAlpha)
             return
         }
 
+        recordRowColor(row, view, drawableAlpha, tintLevel)
         val actualHeight = view.field("mActualHeight") as? Int ?: return
         val clipTop = view.field("mClipTopAmount") as? Int ?: 0
         val clipBottom = view.field("mClipBottomAmount") as? Int ?: 0
@@ -183,10 +181,10 @@ object NotificationGlass {
         val right = left + actualWidth
 
         val saveCount = canvas.save()
-        try {
-            Guard.run("NotificationGlass.notification_glass", Unit) {
+        val drawn = try {
+            Guard.run("NotificationGlass.notification_glass", false) {
                 canvas.clipRect(left, clipTop, right, actualHeight - clipBottom)
-                ComposeLiquidGlass.drawView(
+                val glassDrawn = ComposeLiquidGlass.drawView(
                     view,
                     canvas,
                     left.toFloat(),
@@ -200,7 +198,7 @@ object NotificationGlass {
                     openSmallEdges = true
                 )
 
-                if (colorLayer != null) {
+                if (glassDrawn && colorLayer != null) {
                     val tint = (view.field("mTintColor") as? Int)?.takeIf { it != 0 }
                         ?: view.field("mNormalColor") as? Int
                     if (tint != null) {
@@ -217,9 +215,16 @@ object NotificationGlass {
                         canvas.drawPath(tintPath, tintPaint)
                     }
                 }
+                glassDrawn
             }
         } finally {
             canvas.restoreToCount(saveCount)
+        }
+
+        if (!drawn) {
+            recordRowColor(row, view, drawableAlpha, 1f)
+            restoreStock(view, background, colorLayer, drawableAlpha)
+            return
         }
 
         if (colorLayer != null) {
@@ -232,6 +237,33 @@ object NotificationGlass {
             background.alpha = (drawableAlpha * tintLevel).roundToInt().coerceIn(0, 255)
         }
         view.setExtra(NOTIFICATION_GLASS_FIELD, true)
+    }
+
+    private fun restoreStock(view: View, background: Drawable, colorLayer: GradientDrawable?, drawableAlpha: Int) {
+        if (view.extra(NOTIFICATION_GLASS_FIELD) != true) return
+        (view.extra(NOTIFICATION_COLOR_FIELD) as? ColorStateList)?.let { colorLayer?.color = it }
+        view.setExtra(NOTIFICATION_COLOR_FIELD, null)
+        background.alpha = drawableAlpha
+        view.setExtra(NOTIFICATION_GLASS_FIELD, false)
+    }
+
+    fun colorBehind(view: View): Int {
+        var current = view.parent
+        while (current is View) {
+            rowColors[current]?.let { return it }
+            current = current.parent
+        }
+        return Color.TRANSPARENT
+    }
+
+    private fun recordRowColor(row: View?, view: View, drawableAlpha: Int, opacity: Float) {
+        row ?: return
+        val color = (view.field("mTintColor") as? Int)?.takeIf { it != 0 } ?: view.field("mNormalColor") as? Int
+        if (color == null || drawableAlpha == 0) {
+            rowColors.remove(row)
+        } else {
+            rowColors[row] = withOpacity(color, opacity * drawableAlpha / 255f)
+        }
     }
 
     private fun drawGroupHeaderGlass(header: View, canvas: Canvas) {

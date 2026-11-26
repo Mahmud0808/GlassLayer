@@ -1,11 +1,5 @@
 package com.drdisagree.glasslayer.ui.components
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -40,12 +34,7 @@ import kotlin.math.sin
 @Composable
 fun AndroidGlassScene(modifier: Modifier = Modifier, topInset: Dp = 0.dp) {
     val scene = rememberLayerBackdrop()
-    val phase by rememberInfiniteTransition(label = "androidGlass").animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(tween(HOVER_MS, easing = LinearEasing), RepeatMode.Restart),
-        label = "androidGlassHover"
-    )
+    val phase by rememberLoopPhase(HOVER_MS)
     BoxWithConstraints(modifier) {
         val sceneHeight = maxHeight - topInset
         val radius = minOf(sceneHeight * HEIGHT_RATIO, maxWidth * WIDTH_RATIO)

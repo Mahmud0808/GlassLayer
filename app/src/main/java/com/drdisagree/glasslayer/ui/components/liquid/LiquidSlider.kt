@@ -150,20 +150,27 @@ fun LiquidSlider(
                     shape = { Capsule() },
                     effects = {
                         val progress = animation.pressProgress
-                        blur(8.dp.toPx() * (1f - progress))
-                        lens(10.dp.toPx() * progress, 14.dp.toPx() * progress, chromaticAberration = true)
+                        if (progress > 0f) {
+                            blur(8.dp.toPx() * (1f - progress))
+                            lens(10.dp.toPx() * progress, 14.dp.toPx() * progress, chromaticAberration = true)
+                        }
                     },
                     highlight = {
-                        Highlight.Ambient.copy(
-                            width = Highlight.Ambient.width / 1.5f,
-                            blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                            alpha = animation.pressProgress
-                        )
+                        val progress = animation.pressProgress
+                        if (progress > 0f) {
+                            Highlight.Ambient.copy(
+                                width = Highlight.Ambient.width / 1.5f,
+                                blurRadius = Highlight.Ambient.blurRadius / 1.5f,
+                                alpha = progress
+                            )
+                        } else {
+                            null
+                        }
                     },
                     shadow = { Shadow(radius = 4.dp, color = Color.Black.copy(alpha = 0.05f)) },
                     innerShadow = {
                         val progress = animation.pressProgress
-                        InnerShadow(radius = 4.dp * progress, alpha = progress)
+                        if (progress > 0f) InnerShadow(radius = 4.dp * progress, alpha = progress) else null
                     },
                     layerBlock = {
                         val velocity = animation.velocity / 10f
